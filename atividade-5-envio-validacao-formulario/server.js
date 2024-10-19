@@ -9,26 +9,35 @@ app.set("views", __dirname + "/views");
 app.use(express.urlencoded({extended: true}));
 
 app.get("/", (req, res) => {
-    res.render("index.html");
+    let temInscritos = inscritos.length > 0;
+    res.render("index.html", {inscritos, temInscritos});
 });
 
 app.post("/dados", (req, res) => {
     let form = Object.entries(req.body);
-    console.log(form);
 
-    let camposNaoPreenchidos = {...req.body};
+    let campos = {...req.body};
 
-    form.filter(campo => campo[1] != '').forEach(campoPreenchido => delete camposNaoPreenchidos[campoPreenchido[0]]);
-    console.log("Cmapo não preenchidos: ", camposNaoPreenchidos);
+    let camposNaoPreenchidos = form.filter(campo => campo[1] == '').map(campoVazio => campoVazio[0]);
 
-
-    if(!Object.keys(camposNaoPreenchidos).length == 0){
-        res.render("index.html", {camposNaoPreenchidos});
+    if(camposNaoPreenchidos.length != 0){
+        res.render("index.html", {camposNaoPreenchidos, inscritos});
+        return;
     }
+    inscritos.push(campos);
 
-    res.render("dados.html", {form});
+    res.render("dados.html", campos);
 });
 
 app.listen(8080, () => {
     console.log("App escutando na porta 8080");
 });
+
+let inscritos = [
+    {
+    nome: 'Caio Vinícius',
+    endereco: 'Planaltina DF',
+    telefone: '(61) 9 9599-1234',
+    dataAgendamento: '2024-11-01'
+  }
+];
